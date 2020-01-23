@@ -1,29 +1,44 @@
 package ru.avalon.java.actions;
 
-/**
- * Действие, которое копирует файлы в пределах дискового
- * пространства.
- */
-public class FileCopyAction implements Action {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run() {
-        /*
-         * TODO №2 Реализуйте метод run класса FileCopyAction
-         */
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
+import java.io.*;
 
-    /**
-     * {@inheritDoc}
-     */
+public class FileCopyAction implements Action {
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    File source, dest;
+    
+    public FileCopyAction (String source, String dest) {                        // конструктор
+        this.source = new File(source);
+        this.dest = new File(dest);
+    }
+    
+    public void start() {
+        new Thread(this).start();
+        System.out.println("Запускаем поток копирования");
+    }
+    
+   @Override
+    public void run() {
+        try (InputStream is = new FileInputStream(source);
+            OutputStream os = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) >0) {
+                os.write(buffer,0,length);
+            }
+            os.flush();
+            System.out.println(ANSI_RED + "\n копирование" + source.getAbsolutePath() + " в " 
+                                + dest.getAbsolutePath() + " завершено" + ANSI_RESET + "\n> "); // подсветка красным выводимых сообщений
+            
+        } catch (IOException ex) {
+            System.out.println("ошибка копирования " + ex.getMessage());
+        }
+        
+    }
+  
     @Override
     public void close() throws Exception {
-        /*
-         * TODO №3 Реализуйте метод close класса FileCopyAction
-         */
-        throw new UnsupportedOperationException("Not implemented yet!");
+        source = null;                                                          // закрываем ресурсы
+        dest = null;
     }
 }
